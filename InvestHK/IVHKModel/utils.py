@@ -8,6 +8,7 @@ import torch
 import pandas as pd
 import numpy as np
 import sklearn
+import zhconv
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 from transformers import pipeline
 from datasets import Dataset, DatasetDict
@@ -179,6 +180,30 @@ def get_sentiment_infos(texts):
     infos = [_raw2output(info) for info in sentiment_infos]
     
     return infos
+
+def get_translation_hk_en(texts):
+
+    z2e = pipeline( "text2text-generation", model = "Helsinki-NLP/opus-mt-zh-en",
+                    device=0 if torch.cuda.is_available() else -1, batch_size=CFG.INFER_BATCH_SIZE)
+    
+    zh_sentences = [zhconv.convert(s, 'zh-cn') for s in texts]
+    z2e_output = z2e(zh_sentences)
+    en_sentences = [r['generated_text'] for r in z2e_output]
+    
+    return en_sentences
+
+def get_translation_en_zh(texts):
+
+    e2z = pipeline( "text2text-generation", model = "Helsinki-NLP/opus-mt-en-zh",
+                    device=0 if torch.cuda.is_available() else -1, batch_size=CFG.INFER_BATCH_SIZE)
+    
+    e2z_output = e2z(texts)
+    zh_sentences = [r['generated_text'] for r in e2z_output]
+    return zh_sentences
+
+def get_translation_hk_zh(texts):
+    
+    return [zhconv.convert(s, 'zh-cn') for s in texts]
 
         
     

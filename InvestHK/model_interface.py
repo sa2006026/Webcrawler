@@ -134,4 +134,58 @@ def get_entities(texts: list[str]) -> list[dict]:
     """
     return get_entities_infos(texts)
 
+def translate_hk_to_en(texts: list[str]) -> list[str]:
+    """
+    Translate texts in Traditional Chinese(HK) into English texts.
+
+    Parameters
+    ----------
+    texts : list[str]
+        Input texts to be translated.
+
+    Returns
+    -------
+    list[str]
+        Translated texts, in English.
+
+    """
+    
+    return get_translation_hk_en(texts)
+
+def translate_en_to_zh(texts: list[str]) -> list[str]:
+    """
+    Translate texts in English into Simplified Chinese texts.
+
+    Parameters
+    ----------
+    texts : list[str]
+        Input texts to be translated.
+
+    Returns
+    -------
+    list[str]
+        Translated texts, in Simplified Chinese.
+
+    """
+    
+    return get_translation_en_zh(texts)
+
+def translate_hk_to_zh(texts: list[str]) -> list[str]:
+    """
+    Translate texts in Traditional Chinese(HK) into Simplified Chinese texts.
+
+    Parameters
+    ----------
+    texts : list[str]
+        Input texts to be translated.
+
+    Returns
+    -------
+    list[str]
+        Translated texts, in Simplified Chinese.
+
+    """
+    
+    return get_translation_hk_zh(texts)
+
 

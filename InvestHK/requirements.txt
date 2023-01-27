@@ -9,3 +9,4 @@ torch
 zhconv
 tqdm==4.64.1
 transformers==4.19.2
+zhconv==1.4.3

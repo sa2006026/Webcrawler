@@ -8,7 +8,7 @@ from .config import CFG
 from .IVHKCrawler import FetchURL, AnalyzeHTML, get_analyze_funcs
 
 
-def setup_webdriver(headless: bool = False, pictures: bool = True, scripts: bool = True):
+def setup_webdriver(headless: bool = False, pictures: bool = True, scripts: bool = True, proxy = None):
     """
     Create a chrome webdriver instance with selenium.
     Should have chrome driver excutable in config.py -> CHROME_DRIVER_PATH
@@ -25,7 +25,10 @@ def setup_webdriver(headless: bool = False, pictures: bool = True, scripts: bool
     
     scripts : bool (Default to False)
         Whether the driver receives js scripts from website.
-
+    
+    proxy : string (Default to None)
+        If given, webdriver will access internet through given proxy server.
+        
     Returns
     -------
     selenium.webdriver.chrome.webdriver.WebDriver
@@ -44,7 +47,8 @@ def setup_webdriver(headless: bool = False, pictures: bool = True, scripts: bool
     if headless:
         chrome_options.add_argument("--headless") # Hides the browser window
     # Reference the local Chromedriver instance
-    chrome_options.add_argument('--proxy-server=http://127.0.0.1:9910')
+    if proxy is not None:
+        chrome_options.add_argument(f'--proxy-server={proxy}')
     driver = webdriver.Chrome(executable_path=CFG.CHROME_DRIVER_PATH, options=chrome_options)
     return driver
 

@@ -12,7 +12,8 @@ class CFG:
         'bloomberg',
         'cnbc',
         'financialtimes',
-        'xinhuanet'
+        'xinhuanet',
+        'reuters',
     ]
     
     ####################################################################################

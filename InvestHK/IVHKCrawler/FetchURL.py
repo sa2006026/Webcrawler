@@ -10,6 +10,64 @@ from tqdm.auto import tqdm
 from .AnalyzeHTML import *
 from .Utils import *
 
+def fetch_url_from_reuters(driver, q, from_date:datetime, to_date:datetime):
+    
+    params = {'query': q}
+
+    search_url = 'https://www.reuters.com/site-search/?' + urlencode(params)
+    
+    first_page = search_url + '&' + urlencode({'offset': 0})
+    num_page_text_elements = fetch_elements_retry_wait(driver, first_page, by=By.CSS_SELECTOR, value=".text__text__1FZLe.text__dark-grey__3Ml43.text__medium__1kbOh.text__heading_6__1qUJ5.count")
+    if num_page_text_elements == []:
+        logg("Failed fetching total num of pages.")
+        return None
+
+    num_total = int(num_page_text_elements[0].text.split(' ')[0])
+    num_page = num_total // 20 + 1
+    items = []
+    logg(f'Sending {num_page} queries to fetch {num_total} news items.')
+
+    for p in tqdm(range(num_page)):
+        
+        page_url = search_url + '&' + urlencode({'offset': p * 20})
+        driver.get(page_url)
+        elements = fetch_elements_retry_wait(driver, page_url, by=By.CLASS_NAME, value='search-results__item__2oqiX')
+        
+        if elements == []:
+            break
+        
+        
+        def proc_element(e):
+            a = e.find_element(by=By.TAG_NAME, value='a')
+            try:
+                span = a.find_element(by=By.TAG_NAME, value='span')
+                title = span.text
+            except:
+                title = a.text
+            timestamp = e.find_element(by=By.TAG_NAME, value='time').get_attribute('datetime')
+            
+            return {
+                'url': a.get_attribute('href'),
+                'title': title,
+                'datetime': datetime.strptime(timestamp[:10], '%Y-%m-%d'),
+            }
+        
+        _items  = []
+        for e in elements:
+            _items.append(proc_element(e))
+        
+        items += _items
+        if any([item['datetime'] < from_date for item in _items]):
+            break
+    
+    result_df = pd.DataFrame(items)
+    result_df = result_df.drop_duplicates(['url'])
+    result_df = filter_result_df_date(result_df, from_date, to_date)
+    
+    
+    ret = result_df.to_dict('records')
+        
+    return ret
 
 def fetch_url_from_bloomberg(driver, q, from_date:datetime, to_date:datetime):
     
@@ -111,7 +169,7 @@ def fetch_url_from_financialtimes(driver, q, from_date:datetime, to_date:datetim
 
     search_url = 'https://www.ft.com/search?' + urlencode(params)
 
-    page_url = search_url + '&' +urlencode({'page': 1})
+    page_url = search_url + '&' + urlencode({'page': 1})
     elements = fetch_elements_retry_wait(driver, page_url, by=By.CSS_SELECTOR, value='.o-teaser-collection__heading.o-teaser-collection__heading--half-width')
     
     try:

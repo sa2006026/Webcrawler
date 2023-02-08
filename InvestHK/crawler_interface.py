@@ -44,7 +44,7 @@ def setup_webdriver(headless: bool = False, pictures: bool = True, scripts: bool
     if headless:
         chrome_options.add_argument("--headless") # Hides the browser window
     # Reference the local Chromedriver instance
-    # chrome_options.add_argument('--proxy-server=http://127.0.0.1:9910')
+    chrome_options.add_argument('--proxy-server=http://127.0.0.1:9910')
     driver = webdriver.Chrome(executable_path=CFG.CHROME_DRIVER_PATH, options=chrome_options)
     return driver
 

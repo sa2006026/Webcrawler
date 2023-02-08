@@ -148,3 +148,12 @@ def analyze_xinhuanet_article_chinese(soup:BeautifulSoup):
     contents = [''.join([p.text.strip() for p in soup.find('div', id='detail').find_all('p')])]
 
     return titles, contents
+
+@return_empty_when_error
+def analyze_reuters_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('h1', {'data-testid': 'Heading'}).text]
+    paragraphs = soup.find_all('p', {'class': "text__text__1FZLe text__dark-grey__3Ml43 text__regular__2N1Xr text__large__nEccO body__full_width__ekUdw body__large_body__FV5_X article-body__element__2p5pI"})
+    contents = ['\n'.join([p.text for p in paragraphs])]
+    
+    return titles, contents

@@ -7,7 +7,7 @@ with open('GBA.csv', mode='w', encoding='utf-8', newline='') as csv_file:
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     writer.writeheader()
 
-    for i in range(1, 3):
+    for i in range(1, 21):
         if i == 1:
             url = "https://www.cnbayarea.org.cn/english/News/index.html"
         else:

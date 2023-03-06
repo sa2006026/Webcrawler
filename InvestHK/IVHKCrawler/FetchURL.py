@@ -1,14 +1,18 @@
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
 from itertools import count
 from urllib.parse import quote, urlencode
 
-import pandas as pd
 import requests
+from bs4 import BeautifulSoup
+
+import pandas as pd
 from selenium.webdriver.common.by import By
 from tqdm.auto import tqdm
 
 from .AnalyzeHTML import *
 from .Utils import *
+
 
 def fetch_url_from_reuters(driver, q, from_date:datetime, to_date:datetime):
     
@@ -276,8 +280,195 @@ def fetch_url_from_xinhuanet(driver, q, from_date:datetime, to_date:datetime):
         
     return ret
 
+def fetch_url_from_xinhuanet_chinese(driver, q, from_date:datetime, to_date:datetime):
+
+    search_url = 'http://search.news.cn/#search/0/' + quote(q)
+
+    page_url = search_url + '/1/' 
+    elements = fetch_elements_retry_wait(driver, page_url, by=By.ID, value='newsCount')
+    if elements == []:
+        logg("Failed fetching total num of pages.")
+        return None
+
+    num_total = int(elements[0].text)
+    num_page = num_total // 10 + 1
+    items = []
+    logg(f'Sending {num_page} queries to fetch {num_total} news items.')
+
+    for p in tqdm(range(num_page)):
+        
+        page_url = search_url + '/' + str(p+1)
+        driver.get(page_url)
+        elements = fetch_elements_retry_wait(driver, page_url, by=By.CLASS_NAME, value='news')
+        
+        if elements == []:
+            break
+        
+        
+        def proc_element(e):
+            a = e.find_element(by=By.TAG_NAME, value='a')
+            span = e.find_element(by=By.TAG_NAME, value='span')
+            
+            return {
+                'url': a.get_attribute('href'),
+                'title': a.text,
+                'datetime': datetime.strptime(span.text[:10], '%Y-%m-%d'),
+            }
+        
+        _items  = []
+        for e in elements:
+            _items.append(proc_element(e))
+        
+        items += _items
+        if any([item['datetime'] < from_date for item in _items]):
+            break
+    
+    result_df = pd.DataFrame(items)
+    result_df = result_df.drop_duplicates(['url'])
+    result_df = filter_result_df_date(result_df, from_date, to_date)
+    
+    
+    ret = result_df.to_dict('records')
+        
+    return ret
+
+def fetch_url_from_renminribao(driver, q, from_date:datetime, to_date:datetime):
+    
+    def fetchUrl(url):
+        '''
+        功能：访问 url 的网页，获取网页内容并返回
+        参数：目标网页的 url
+        返回：目标网页的 html 内容
+        '''
+
+        # headers = {
+        #     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        #     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+        # }
+
+        driver.get(url)
+        return driver.page_source
+
+    def getPageList(year, month, day):
+        '''
+        功能：获取当天报纸的各版面的链接列表
+        参数：年，月，日
+        '''
+        url = 'http://paper.people.com.cn/rmrb/html/' + year + '-' + month + '/' + day + '/nbs.D110000renmrb_01.htm'
+        html = fetchUrl(url)
+        bsobj = BeautifulSoup(html,'html.parser')
+        temp = bsobj.find('div', attrs = {'id': 'pageList'})
+        if temp:
+            pageList = temp.ul.find_all('div', attrs = {'class': 'right_title-name'})
+        else:
+            pageList = bsobj.find('div', attrs = {'class': 'swiper-container'}).find_all('div', attrs = {'class': 'swiper-slide'})
+        linkList = []
+
+        for page in pageList:
+            link = page.a["href"]
+            url = 'http://paper.people.com.cn/rmrb/html/'  + year + '-' + month + '/' + day + '/' + link
+            linkList.append(url)
+
+        return linkList
+
+    def getTitleList(year, month, day, pageUrl):
+        '''
+        功能：获取报纸某一版面的文章链接列表
+        参数：年，月，日，该版面的链接
+        '''
+        html = fetchUrl(pageUrl)
+        bsobj = BeautifulSoup(html,'html.parser')
+        temp = bsobj.find('div', attrs = {'id': 'titleList'})
+        if temp:
+            titleList = temp.ul.find_all('li')
+        else:
+            titleList = bsobj.find('ul', attrs = {'class': 'news-list'}).find_all('li')
+        linkList = []
+
+        for title in titleList:
+            tempList = title.find_all('a')
+            for temp in tempList:
+                link = temp["href"]
+                if 'nw.D110000renmrb' in temp["href"]:
+                    r = {
+                        'url': 'http://paper.people.com.cn/rmrb/html/'  + year + '-' + month + '/' + day + '/' + link,
+                        'title': temp.text,
+                        'datetime': datetime(int(year),int(month),int(day))
+                    }
+                    linkList.append(r)
+                    
+
+        return linkList
+
+    def gen_dates(b_date, days):
+        day = timedelta(days = 1)
+        for i in range(days):
+            yield b_date + day * i
+
+    def get_date_list(beginDate, endDate):
+        """
+        获取日期列表
+        :param start: 开始日期
+        :param end: 结束日期
+        :return: 开始日期和结束日期之间的日期列表
+        """
+
+        data = []
+        for d in gen_dates(beginDate, (endDate-beginDate).days):
+            data.append(d)
+        return data
+
+    
+    def download_rmrb(year, month, day, destdir):
+        '''
+        功能：爬取《人民日报》网站 某年 某月 某日 的新闻内容，返回格式化记录
+        参数：年，月，日，文件保存的根目录
+        '''
+        pageList = getPageList(year, month, day)
+        pbar = tqdm(pageList)
+        results = []
+        for page in pbar:
+            titleList = getTitleList(year, month, day, page)
+            results += titleList
+        
+        return results
+    
+    destdir = "data"
+
+    dates = get_date_list(from_date, to_date)
+    # data = rm_existed_dates(destdir, data)
+    items = []
+    for d in dates:
+        year = str(d.year)
+        month = str(d.month) if d.month >=10 else '0' + str(d.month)
+        day = str(d.day) if d.day >=10 else '0' + str(d.day)
+
+        results = download_rmrb(year, month, day, destdir)
+        items += results
+    
+    result_df = pd.DataFrame(items)
+    result_df = result_df.drop_duplicates(['url'])
+    result_df = filter_result_df_date(result_df, from_date, to_date)
+    
+    
+    ret = result_df.to_dict('records')
+        
+    return ret
 
 
-
-
-
+def fetch_url_from_chinadaily(driver, q, from_date:datetime, to_date:datetime):
+    res = [] # url, title, datetime
+    # TODO: date time
+    for i in range(1, 2):
+        url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        articles = soup.find_all('div', class_="mb10 tw3_01_2")
+        for article in articles:
+            title_link = article.find('h4').find('a')
+            title = title_link.text.strip()
+            link = title_link['href'].lstrip('/')
+            datetime = None # TODO
+            res.append(dict(title=title, url=f"http://{link}", datetime=datetime))
+            break # TODO
+    return res

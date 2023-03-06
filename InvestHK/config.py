@@ -14,6 +14,9 @@ class CFG:
         'financialtimes',
         'xinhuanet',
         'reuters',
+        'xinhuanet_chinese',
+        'renminribao',
+        'chinadaily'
     ]
     
     ####################################################################################

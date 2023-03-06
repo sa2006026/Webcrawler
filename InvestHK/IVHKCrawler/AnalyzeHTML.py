@@ -157,3 +157,47 @@ def analyze_reuters_article(soup:BeautifulSoup):
     contents = ['\n'.join([p.text for p in paragraphs])]
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_xinhuanet_article_chinese(soup:BeautifulSoup):
+
+    titles = [soup.find('span', **{'class': 'title'}).text.strip()]
+    contents = [''.join([p.text.strip() for p in soup.find('div', id='detail').find_all('p')])]
+
+    return titles, contents
+
+@return_empty_when_error
+def analyze_reuters_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('h1', {'data-testid': 'Heading'}).text]
+    paragraphs = soup.find_all('p', {'class': "text__text__1FZLe text__dark-grey__3Ml43 text__regular__2N1Xr text__large__nEccO body__full_width__ekUdw body__large_body__FV5_X article-body__element__2p5pI"})
+    contents = ['\n'.join([p.text for p in paragraphs])]
+    
+    return titles, contents
+
+@return_empty_when_error
+def analyze_renminribao_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('title').text]
+    contents = ['\n'.join([p.text for p in soup.find(**{'id': 'articleContent'}).find_all('p')])]
+    
+    return titles, contents
+
+
+@return_empty_when_error
+def analyze_chinadaily_article(soup:BeautifulSoup):
+    
+    titles = [] # TODO
+    
+    content_div = soup.find('div', id='Content')
+    if content_div:
+        paragraphs = content_div.find_all('p')
+        content = []
+        for p in paragraphs:
+            content.append(p.get_text())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+
+    
+    return titles, contents

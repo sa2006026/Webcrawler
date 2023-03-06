@@ -12,7 +12,7 @@ with open('chinadaily2.csv', mode='w', encoding='utf-8', newline='') as csv_file
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         articles = soup.find_all('div', class_="mb10 tw3_01_2")
-        # Extract title and link
+        # Extract title, content and link
         for article in articles:
             title_link = article.find('h4').find('a')
             title = title_link.text.strip()

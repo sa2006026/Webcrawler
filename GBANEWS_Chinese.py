@@ -36,3 +36,7 @@ with open('GBA_Chinese.csv', mode='w', encoding='utf-8', newline='') as csv_file
             # Write row CSV
             writer.writerow({'Title': title, 'Link': link,
                             'Content': '\n'.join(content)})
+            
+
+
+

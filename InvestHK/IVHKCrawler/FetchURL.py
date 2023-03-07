@@ -468,7 +468,8 @@ def fetch_url_from_chinadaily(driver, q, from_date:datetime, to_date:datetime):
             title_link = article.find('h4').find('a')
             title = title_link.text.strip()
             link = title_link['href'].lstrip('/')
-            datetime = None # TODO
+            date_string = article.find('b').text
+            datetime = date_string[:10]
             res.append(dict(title=title, url=f"http://{link}", datetime=datetime))
-            break # TODO
+            #break # TODO
     return res

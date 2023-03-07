@@ -187,7 +187,7 @@ def analyze_renminribao_article(soup:BeautifulSoup):
 @return_empty_when_error
 def analyze_chinadaily_article(soup:BeautifulSoup):
     
-    titles = [] # TODO
+    titles = [soup.find('h1').getText()] # TODO
     
     content_div = soup.find('div', id='Content')
     if content_div:

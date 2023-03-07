@@ -17,9 +17,13 @@ with open('chinadaily2.csv', mode='w', encoding='utf-8', newline='') as csv_file
             title_link = article.find('h4').find('a')
             title = title_link.text.strip()
             link = title_link['href'].lstrip('/')
+            date_string = article.find('b').text
+            date_string = date_string[:10]
+            print(date_string)
             content_response = requests.get(f"http://{link}")
             content_soup = BeautifulSoup(content_response.content, 'html.parser')
             content_div = content_soup.find('div', id='Content')
+            Content_title = content_soup.find('h1').getText()
             if content_div:
                 paragraphs = content_div.find_all('p')
                 content = []

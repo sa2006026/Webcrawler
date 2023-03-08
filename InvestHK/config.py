@@ -16,7 +16,9 @@ class CFG:
         'reuters',
         'xinhuanet_chinese',
         'renminribao',
-        'chinadaily'
+        'chinadaily',
+        'GBAChinese',
+        'GBAEnglish'
     ]
     
     ####################################################################################

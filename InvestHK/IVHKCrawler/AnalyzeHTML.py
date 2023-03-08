@@ -201,3 +201,42 @@ def analyze_chinadaily_article(soup:BeautifulSoup):
 
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_GBAChinese_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('h1', class_="article_t").text] # TODO
+    
+    content_div = soup.find('div', class_="article_con")
+    if content_div:
+        paragraphs = content_div.find_all(
+            'p', {'style': 'text-align: justify;'})
+        content = []
+        for p in paragraphs:
+            if p.text.strip():  
+                content.append(p.text.strip())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+
+    
+    return titles, contents
+
+@return_empty_when_error
+def analyze_GBAEnglish_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('h1', class_="article_t").text] # TODO
+    
+    content_div = soup.find('div', class_="article_con")
+    if content_div:
+        paragraphs = content_div.find_all(
+            'p', {'style': 'text-align: left;'})
+        content = []
+        for p in paragraphs:
+            if p.text.strip():  # Only include non-empty paragraphs
+                content.append(p.text.strip())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+    
+    return titles, contents

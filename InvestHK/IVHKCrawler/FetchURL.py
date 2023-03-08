@@ -473,3 +473,39 @@ def fetch_url_from_chinadaily(driver, q, from_date:datetime, to_date:datetime):
             res.append(dict(title=title, url=f"http://{link}", datetime=datetime))
             #break # TODO
     return res
+
+def fetch_url_from_GBAChinese(driver, q, from_date:datetime, to_date:datetime):
+    res = [] # url, title, datetime
+    # TODO: date time
+    for i in range(1, 51):  # 50 pages
+        if i == 1:
+            url = "https://www.cnbayarea.org.cn/news/focus/index.html"
+        else:
+            url = f"https://www.cnbayarea.org.cn/news/focus/index_{i}.html"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        for li in soup.select('ul.gl_list1 li'):
+            title = li.select_one('h3.gl_list1_t a').text
+            link = li.select_one('h3.gl_list1_t a')['href']
+            date = li.select_one('span.gl_list_date').text
+            res.append(dict(title=title, url=f"{link}", datetime=date))
+            #break # TODO
+    return res
+
+def fetch_url_from_GBAEnglish(driver, q, from_date:datetime, to_date:datetime):
+    res = [] # url, title, datetime
+    # TODO: date time
+    for i in range(1, 21):  # 20 pages
+        if i == 1:
+            url = "https://www.cnbayarea.org.cn/english/News/index.html"
+        else:
+            url = f"https://www.cnbayarea.org.cn/english/News/index_{i}.html"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        for li in soup.select('ul.gl_list1 li'):
+            title = li.select_one('h3.gl_list1_t a').text.strip()
+            link = li.select_one('h3.gl_list1_t a')['href']
+            date = li.select_one('span.gl_list_date').text.strip()
+            res.append(dict(title=title, url=f"{link}", datetime=date))
+            #break # TODO
+    return res

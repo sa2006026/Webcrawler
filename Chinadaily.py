@@ -21,8 +21,7 @@ with open('chinadaily2.csv', mode='w', encoding='utf-8', newline='') as csv_file
             date_string = date_string[:10]
             print(date_string)
             content_response = requests.get(f"http://{link}")
-            content_soup = BeautifulSoup(
-                content_response.content, 'html.parser')
+            content_soup = BeautifulSoup(content_response.content, 'html.parser')
             content_div = content_soup.find('div', id='Content')
             Content_title = content_soup.find('h1').getText()
             if content_div:

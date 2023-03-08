@@ -233,7 +233,7 @@ def analyze_GBAEnglish_article(soup:BeautifulSoup):
             'p', {'style': 'text-align: left;'})
         content = []
         for p in paragraphs:
-            if p.text.strip():  # Only include non-empty paragraphs
+            if p.text.strip():  
                 content.append(p.text.strip())
     else:
         content = ["Content not found."]

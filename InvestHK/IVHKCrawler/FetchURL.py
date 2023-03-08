@@ -459,7 +459,7 @@ def fetch_url_from_renminribao(driver, q, from_date:datetime, to_date:datetime):
 def fetch_url_from_chinadaily(driver, q, from_date:datetime, to_date:datetime):
     res = [] # url, title, datetime
     # TODO: date time
-    for i in range(1, 2):
+    for i in range(1, 414):
         url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')

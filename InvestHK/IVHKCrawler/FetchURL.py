@@ -459,18 +459,20 @@ def fetch_url_from_renminribao(driver, q, from_date:datetime, to_date:datetime):
 def fetch_url_from_chinadaily(driver, q, from_date:datetime, to_date:datetime):
     res = [] # url, title, datetime
     # TODO: date time
-    for i in range(1, 414):
+    for i in range(1, 10):
         url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         articles = soup.find_all('div', class_="mb10 tw3_01_2")
+        # Extract title, content and link
         for article in articles:
-            title_link = article.find('h4').find('a')
-            title = title_link.text.strip()
-            link = title_link['href'].lstrip('/')
             date_string = article.find('b').text
-            datetime = date_string[:10]
-            res.append(dict(title=title, url=f"http://{link}", datetime=datetime))
+            datetime_obj = datetime.strptime(date_string, '%Y-%m-%d %H:%M')
+            if from_date <= datetime_obj <= to_date:
+                title_link = article.find('h4').find('a')
+                title = title_link.text.strip()
+                link = title_link['href'].lstrip('/')
+                res.append(dict(title=title, url=f"http://{link}", datetime=datetime_obj))
             #break # TODO
     return res
 

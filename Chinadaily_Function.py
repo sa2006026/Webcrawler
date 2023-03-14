@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, time
 import csv
 
 
-def extract_chinadaily_date(from_date, to_date):
+def Extract_chinadaily_date(from_date, to_date):
     with open('chinadaily2.csv', mode='w', encoding='utf-8', newline='') as csv_file:
         fieldnames = ['Title', 'Link', 'Content']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -46,7 +46,7 @@ def extract_chinadaily_date(from_date, to_date):
                                      'Content': '\n'.join(content)})
 
 
-def extract_chinadaily_all():
+def Extract_chinadaily_all():
     with open('chinadaily2.csv', mode='w', encoding='utf-8', newline='') as csv_file:
         fieldnames = ['Title', 'Link', 'Content']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -91,6 +91,6 @@ from_date = datetime.combine(
 to_date = datetime.combine(today, time.max) - \
     timedelta(seconds=1)  # today datetime
 
-# extract_chinadaily_date(from_date, to_date)
+# Extract_chinadaily_date(from_date, to_date)
 
-# extract_chinadaily_all()
+# Extract_chinadaily_all()

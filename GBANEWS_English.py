@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, time
 import csv
 
+
 with open('GBA_English.csv', mode='w', encoding='utf-8', newline='') as csv_file:
     fieldnames = ['Title', 'Link', 'Content']
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)

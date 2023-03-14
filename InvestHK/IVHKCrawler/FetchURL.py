@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,time
 from itertools import count
 from urllib.parse import quote, urlencode
 
@@ -472,19 +472,20 @@ def fetch_url_from_renminribao(driver, q, from_date: datetime, to_date: datetime
 def fetch_url_from_chinadaily(driver, q, from_date: datetime, to_date: datetime):
     res = []  # url, title, datetime
     # TODO: date time
+    i = 0
     datetime_obj = to_date
+
     while from_date <= datetime_obj:
         i += 1
         url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         articles = soup.find_all('div', class_="mb10 tw3_01_2")
-        # Extract title, content and link
         for article in articles:
             date_string = article.find('b').text
             datetime_obj = datetime.strptime(date_string, '%Y-%m-%d %H:%M')
-            if from_date <= datetime_obj <= to_date:
-                print(date_string)
+            date_obj = datetime_obj.date()
+            if from_date.date() <= date_obj <= to_date.date():
                 title_link = article.find('h4').find('a')
                 title = title_link.text.strip()
                 link = title_link['href'].lstrip('/')
@@ -497,7 +498,11 @@ def fetch_url_from_chinadaily(driver, q, from_date: datetime, to_date: datetime)
 def fetch_url_from_GBAChinese(driver, q, from_date: datetime, to_date: datetime):
     res = []  # url, title, datetime
     # TODO: date time
-    for i in range(1, 51):  # 50 pages
+    i = 0
+    datetime_obj = to_date
+
+    while from_date <= datetime_obj:
+        i += 1
         if i == 1:
             url = "https://www.cnbayarea.org.cn/news/focus/index.html"
         else:
@@ -505,10 +510,13 @@ def fetch_url_from_GBAChinese(driver, q, from_date: datetime, to_date: datetime)
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         for li in soup.select('ul.gl_list1 li'):
-            title = li.select_one('h3.gl_list1_t a').text
-            link = li.select_one('h3.gl_list1_t a')['href']
-            date = li.select_one('span.gl_list_date').text
-            res.append(dict(title=title, url=f"{link}", datetime=date))
+            date_string = li.select_one('span.gl_list_date').text
+            datetime_obj = datetime.strptime(date_string, '%Y-%m-%d')
+            if from_date <= datetime_obj <= to_date:
+                #print(datetime_obj)                            #testing
+                title = li.select_one('h3.gl_list1_t a').text
+                link = li.select_one('h3.gl_list1_t a')['href']
+                res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
             # break # TODO
     return res
 
@@ -516,7 +524,11 @@ def fetch_url_from_GBAChinese(driver, q, from_date: datetime, to_date: datetime)
 def fetch_url_from_GBAEnglish(driver, q, from_date: datetime, to_date: datetime):
     res = []  # url, title, datetime
     # TODO: date time
-    for i in range(1, 21):  # 20 pages
+    i = 0
+    datetime_obj = to_date
+
+    while from_date <= datetime_obj:
+        i += 1
         if i == 1:
             url = "https://www.cnbayarea.org.cn/english/News/index.html"
         else:
@@ -524,9 +536,12 @@ def fetch_url_from_GBAEnglish(driver, q, from_date: datetime, to_date: datetime)
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         for li in soup.select('ul.gl_list1 li'):
-            title = li.select_one('h3.gl_list1_t a').text.strip()
-            link = li.select_one('h3.gl_list1_t a')['href']
-            date = li.select_one('span.gl_list_date').text.strip()
-            res.append(dict(title=title, url=f"{link}", datetime=date))
+            date_string = li.select_one('span.gl_list_date').text.strip()
+            datetime_obj = datetime.strptime(date_string, '%Y-%m-%d')
+            if from_date <= datetime_obj <= to_date:
+                #print(datetime_obj)                            #testing
+                title = li.select_one('h3.gl_list1_t a').text
+                link = li.select_one('h3.gl_list1_t a')['href']
+                res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
             # break # TODO
     return res

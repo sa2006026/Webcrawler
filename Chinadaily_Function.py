@@ -52,7 +52,7 @@ def extract_chinadaily_all():
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
 
-        for i in range(1, 20):
+        for i in range(1, 401):
             url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
             response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -85,11 +85,12 @@ def extract_chinadaily_all():
 
 # Example
 
-"""today = datetime.today()
+today = datetime.today()
 from_date = datetime.combine(
     today - timedelta(days=1), time.min)  # change days
 to_date = datetime.combine(today, time.max) - \
     timedelta(seconds=1)  # today datetime
-extract_chinadaily_date(from_date, to_date)"""
 
-extract_chinadaily_all()
+# extract_chinadaily_date(from_date, to_date)
+
+# extract_chinadaily_all()

@@ -19,7 +19,8 @@ class CFG:
         'chinadaily',
         'GBAChinese',
         'GBAEnglish',
-        'SouthCN'
+        'SouthCN',
+        'AVCJ'
     ]
     
     ####################################################################################

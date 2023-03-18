@@ -259,3 +259,20 @@ def analyze_SouthCN_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_AVCJ_article(soup:BeautifulSoup):
+    
+    titles = [soup.find(class_="article-title").text] # TODO
+    
+    content_div = soup.find('b', class_="article-summary")
+    if content_div:
+        paragraphs = content_div.find_all('b')
+        content = []
+        for b in paragraphs:
+            content.append(b.get_text())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+    
+    return titles, contents

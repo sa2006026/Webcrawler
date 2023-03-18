@@ -567,3 +567,28 @@ def fetch_url_from_SouthCN(driver, q, from_date: datetime, to_date: datetime):
                 res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
             # break # TODO
     return res
+
+def fetch_url_from_AVCJ(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+    i = 0
+    datetime_obj = to_date
+
+    while from_date <= datetime_obj:
+        i += 1
+        url = f"https://www.avcj.com/type/news/page/{i}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        articles = soup.find_all('article', class_="col span_4_of_4")
+        # Extract title, content and link
+        for article in articles:
+            date = article.find('time')['datetime']
+            datetime_obj = datetime.strptime(date, '%Y-%m-%d')
+            if from_date <= datetime_obj <= to_date:
+                    # checking datetime of news extracted
+                link_content= article.find('a')['href']
+                title = article.find('h5', class_='listings-article-title').text.strip()
+                link = f"https://www.avcj.com{link_content}"
+                res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
+            # break # TODO
+    return res

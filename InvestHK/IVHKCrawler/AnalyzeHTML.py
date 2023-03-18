@@ -240,3 +240,22 @@ def analyze_GBAEnglish_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_SouthCN_article(soup:BeautifulSoup):
+    
+    titles = [soup.find(id_="article_title")] # TODO
+    
+    content_div = soup.find('div', class_="m-article")
+    if content_div:
+        paragraphs = content_div.find_all(
+                            'p', {'style': 'text-align: justify;'})
+        content = []
+        for p in paragraphs:
+            if p.text.strip():  
+                content.append(p.text.strip())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+    
+    return titles, contents

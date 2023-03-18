@@ -545,3 +545,25 @@ def fetch_url_from_GBAEnglish(driver, q, from_date: datetime, to_date: datetime)
                 res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
             # break # TODO
     return res
+
+def fetch_url_from_SouthCN(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+    i = 0
+    datetime_obj = to_date
+
+    while from_date <= datetime_obj:
+        i += 1
+        url = f"https://www.southcn.com/node_b5769d65fb?cms_node_post_list_page={i}"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        articles = soup.find_all('div', class_="itm j-link")
+        for article in articles:
+            date_string = article.find("div", class_="time").text
+            datetime_obj = datetime.strptime(date_string, '%Y-%m-%d %H:%M')
+            if from_date <= datetime_obj <= to_date:
+                title = article.find("h3").text.strip()
+                link = article.find("a")['href']
+                res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
+            # break # TODO
+    return res

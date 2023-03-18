@@ -18,7 +18,8 @@ class CFG:
         'renminribao',
         'chinadaily',
         'GBAChinese',
-        'GBAEnglish'
+        'GBAEnglish',
+        'SouthCN'
     ]
     
     ####################################################################################

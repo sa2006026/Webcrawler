@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta,time
+from datetime import datetime, timedelta,time, date
 from itertools import count
 from urllib.parse import quote, urlencode
 
@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import pandas as pd
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from tqdm.auto import tqdm
 
@@ -590,5 +591,70 @@ def fetch_url_from_AVCJ(driver, q, from_date: datetime, to_date: datetime):
                 title = article.find('h5', class_='listings-article-title').text.strip()
                 link = f"https://www.avcj.com{link_content}"
                 res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
+            # break # TODO
+    return res
+
+
+def fetch_url_from_YiCai(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+    for i in range(0,1):
+        if i == 0:
+            url = 'https://www.yicaiglobal.com/economy'
+        if i == 1:
+            url = 'https://www.yicaiglobal.com/finance'
+        if i == 2:
+            url = 'https://www.yicaiglobal.com/business'
+        if i == 3:
+            url = 'https://www.yicaiglobal.com/tech'
+        if i == 4:
+            url = 'https://www.yicaiglobal.com/startup'
+        if i == 5:
+            url = 'https://www.yicaiglobal.com/people'
+        driver.get(url)
+        time.sleep(5)
+        Last_date = to_date
+        while True:
+            if Last_date >= from_date:
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                Last_article = soup.find_all('div', {'class': 'web-document'})[-1]
+                Last_date_str = Last_article.find(class_="split-center").find_next('div').text
+                if 'hours ago' in Last_date_str:
+                    now = datetime.now()
+                    hours = int(Last_date_str.split()[0])
+                    Last_date = (now - timedelta(hours=hours))
+                    driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                    time.sleep(4)
+                else:
+                    Last_date = datetime.strptime(Last_date_str, '%b %d %Y')
+                    driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                    time.sleep(4)
+            else:
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                articles = soup.find_all('div', {'class': 'web-document'})
+                for article in articles:
+                    datetime_str = article.find(class_="split-center").find_next('div').text
+                    if 'hours ago' in datetime_str:
+                        now = datetime.now()
+                        hours = int(datetime_str.split()[0])
+                        date_1 = (now - timedelta(hours=hours))
+                    elif 'a day ago' in datetime_str:
+                        date_1 = (datetime.today() - timedelta(days=1))
+                    elif 'minutes ago' in datetime_str:
+                        date_1 = datetime.now()
+                    elif 'minute ago' in datetime_str:
+                        date_1 = datetime.now()
+                    elif 'hour ago' in datetime_str:
+                        date_1 = datetime.now()
+                    else:
+                        date_1 = datetime.strptime(datetime_str, '%b %d %Y')
+                    if date_1 >= from_date:
+                        title_element = article.find(class_='title')
+                        title = title_element.text.strip()
+                        link_content= article.find('a')['href']
+                        link = f"https://www.yicaiglobal.com{link_content}"
+                        res.append(dict(title=title, url=f"{link}", datetime=date_1))
+            break
+  
             # break # TODO
     return res

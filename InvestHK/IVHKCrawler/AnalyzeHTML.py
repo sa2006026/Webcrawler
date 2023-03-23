@@ -276,3 +276,20 @@ def analyze_AVCJ_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_YiCai_article(soup:BeautifulSoup):
+    
+    titles = [soup.find(class_="detail-title").text] # TODO
+    
+    content_div = soup.find(class_="display_flex flex-direction_column detail-content")
+    if content_div:
+        paragraphs = content_div.find_all('p')
+        content = []
+        for p in paragraphs:
+            content.append(p.get_text())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+    
+    return titles, contents

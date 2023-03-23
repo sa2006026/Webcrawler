@@ -1,39 +1,46 @@
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import requests
-from datetime import datetime, timedelta, time
-import sys
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta, time,date
+import time
+import csv
 
+import sys
+sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
 
-today = datetime.today()
-from_date = datetime.combine(
-    today - timedelta(days=5), time.min)  # change days
-to_date = datetime.combine(today, time.max) - \
-    timedelta(seconds=1)  # today datetime
+driver_path = r'D:/User/下載/chromedriver.exe'
+driver = webdriver.Chrome(driver_path)
+for i in range(0,1):
+    if i == 0:
+        url = 'https://www.jiemian.com/lists/2.html'
+driver.get(url)
+titles = driver.find_elements(By.CLASS_NAME,"card-list__title")
+for title in titles:
+    print(title.text)
 
-i = 0
-datetime_obj = to_date
+driver.quit()
 
 
+"""from bs4 import BeautifulSoup
+import requests
 
-url = "https://en.caixin.com/"
+url = 'https://www.jiemian.com/lists/2.html'
 response = requests.get(url)
-soup = BeautifulSoup(response.content, 'html.parser')
-articles = soup.find_all('dl')
-# Extract title, content and link
-for article in articles:
-    date_elem = article.find('span')
-    if date_elem is not None:
-        date = date_elem.text.strip()
-        datetime_obj = datetime.strptime(date, '%Y年%m月%d日')
-        if from_date <= datetime_obj <= to_date:
-            print(datetime_obj)  # checking datetime of news extracted
-            link_content= article.find('a')['href']
-            title = article.find('img')['alt']
-            link = f"{link_content}"
-            print(title)
-            print(link)
+soup = BeautifulSoup(response.text, 'html.parser')
 
+news_list = soup.find_all('li', class_='card-list')
 
+for news in news_list:
+    title = news.find('h3', class_='card-list__title').text.strip()
+    date = news.find('span', class_='news-footer__date').text.strip()
 
-
+    # Encode using latin1, decode using utf-8
+    title = title.encode('latin1').decode('utf-8')
+    print('Title:', title)
+    print('Date:', date)
+"""

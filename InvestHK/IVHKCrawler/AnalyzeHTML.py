@@ -293,3 +293,20 @@ def analyze_YiCai_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_jiemian_article(soup:BeautifulSoup):
+    
+    titles = [soup.find('div', class_='article-header').find('h1').text] # TODO
+    
+    content_div = soup.find('div', class_='article-content')
+    if content_div:
+        paragraphs = content_div.find_all('p')
+        content = []
+        for p in paragraphs:
+            content.append(p.get_text())
+    else:
+        content = ["Content not found."]
+    contents = "\n".join(content)
+    
+    return titles, contents

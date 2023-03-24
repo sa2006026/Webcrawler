@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from tqdm.auto import tqdm
 
 from .AnalyzeHTML import *
@@ -653,6 +655,70 @@ def fetch_url_from_YiCai(driver, q, from_date: datetime, to_date: datetime):
                         title = title_element.text.strip()
                         link_content= article.find('a')['href']
                         link = f"https://www.yicaiglobal.com{link_content}"
+                        res.append(dict(title=title, url=f"{link}", datetime=date_1))
+            break
+  
+            # break # TODO
+    return res
+
+def fetch_url_from_jiemian(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+    for i in range(0,3):
+        if i == 0:
+            url = 'https://www.jiemian.com/lists/2.html'
+        if i == 1:
+            url = 'https://www.jiemian.com/lists/800.html'
+        if i == 2:
+            url = 'https://www.jiemian.com/lists/801.html'
+        driver.get(url)
+        time.sleep(5)
+        Last_date = to_date
+        while True:                                                                 #9/3 end
+            if Last_date >= from_date:
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                article = soup.find_all(class_="card-list")[-1]
+                Last_article = article.find(class_="news-footer__date")
+                Last_date_str = Last_article.text
+                print(Last_date_str)
+                if '昨天' in Last_date_str:
+                    Last_date = datetime.today() - timedelta(days=1)
+                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                    button.click()
+                    time.sleep(5)
+                elif '今天' in Last_date_str:
+                    Last_date = datetime.today()
+                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                    button.click()
+                    time.sleep(5)
+                else:
+                    Last_date = datetime.strptime(Last_date_str, '%m/%d %H:%M')
+                    Last_date = Last_date.replace(year=datetime.now().year)
+                    button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                    button.click()
+                    time.sleep(5)
+            else:
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                articles = soup.find_all('li', {'class': 'card-list'})
+                for article in articles:
+                    datetime_str = article.find(class_="news-footer__date").text
+                    if '刚刚' in datetime_str:
+                        date_1 = datetime.now()
+                    elif '分钟前' in datetime_str:
+                        date_1 = datetime.now()
+                    elif '今天' in datetime_str:
+                        date_1 = datetime.now()
+                    elif '昨天' in datetime_str:
+                        date_1 = datetime.combine(datetime.today() - timedelta(days=1), datetime.max.time())
+                    else:
+                        date_1 = datetime.strptime(datetime_str, '%m/%d %H:%M')
+                        date_1 = date_1.replace(year=datetime.now().year)
+                        date_1 = datetime.combine(date_1.date(), datetime.max.time())
+                    if date_1 >= from_date:
+                        title_element = article.find(class_='card-list__title')
+                        title = title_element.text.strip()
+                        link_content= article.find('a')['href']
+                        link = f"{link_content}"
                         res.append(dict(title=title, url=f"{link}", datetime=date_1))
             break
   

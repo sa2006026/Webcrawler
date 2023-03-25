@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, time, date
 import time
 import csv
+from selenium.common.exceptions import TimeoutException
 
 import sys
 sys.stdin.reconfigure(encoding='utf-8')
@@ -33,8 +34,8 @@ def Extract_jiemian_date(from_date, to_date):
                 driver.get(url)
                 time.sleep(5)
                 Last_date = to_date
-                while True:                                                                 #9/3 end
-                    if Last_date >= from_date:
+                while True:
+                    if (Last_date >= from_date):
                         soup = BeautifulSoup(driver.page_source, 'html.parser')
                         article = soup.find_all(class_="card-list")[-1]
                         Last_article = article.find(class_="news-footer__date")
@@ -42,17 +43,34 @@ def Extract_jiemian_date(from_date, to_date):
                         print(Last_date_str)
                         if '昨天' in Last_date_str:
                             Last_date = datetime.today() - timedelta(days=1)
-                            button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
-                            button.click()
-                            #print(Last_date)
-                            time.sleep(5)
+                            try:
+                                button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                                button.click()
+                                #print(Last_date)
+                                time.sleep(5)
+                            except TimeoutException:
+                                Last_date = from_date - timedelta(days=1)
+                                break  # exit the loop if button is not clickable
+                        elif '今天' in Last_date_str:
+                            Last_date = datetime.today()
+                            try:
+                                button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                                button.click()
+                                #print(Last_date)
+                                time.sleep(5)
+                            except TimeoutException:
+                                Last_date = from_date - timedelta(days=1)
                         else:
                             Last_date = datetime.strptime(Last_date_str, '%m/%d %H:%M')
                             Last_date = Last_date.replace(year=datetime.now().year)
-                            button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
-                            button.click()
-                            #print(Last_date)
-                            time.sleep(5)
+                            try:
+                                button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(text(), '加载更多')]")))
+                                button.click()
+                                #print(Last_date)
+                                time.sleep(5)
+                            except TimeoutException:
+                                Last_date = from_date - timedelta(days=1)
+                                break  # exit the loop if button is not clickable
                     else:
                         soup = BeautifulSoup(driver.page_source, 'html.parser')
                         articles = soup.find_all('li', {'class': 'card-list'})
@@ -95,10 +113,10 @@ def Extract_jiemian_date(from_date, to_date):
                                                                     'Content': '\n'.join(content)})
                         break
         
-from_date = datetime.today() - timedelta(days=2)  #extract from date
+#from_date = datetime.today() - timedelta(days=2)  #extract from date
 
-#from_date = datetime.strptime('2020-01-01', '%Y-%m-%d')  #extract all
-
+from_date = datetime.strptime('2023-03-10 23:59', '%Y-%m-%d %H:%M')  #extract all   15days only
+print(from_date)
 to_date = datetime.today() 
 
 Extract_jiemian_date(from_date, to_date)

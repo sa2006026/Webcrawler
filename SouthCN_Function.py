@@ -82,11 +82,11 @@ def Extract_SouthCN_all():
             
                     
 #Example
-"""today = datetime.today()
+today = datetime.today()
 from_date = datetime.combine(today - timedelta(days=1), time.min)
 to_date = datetime.combine(today, time.max) - timedelta(seconds=1)
 
 Extract_SouthCN_date(from_date, to_date)
-"""
+
 #Extract_SouthCN_all()
 

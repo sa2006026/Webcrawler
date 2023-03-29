@@ -244,12 +244,12 @@ def analyze_GBAEnglish_article(soup:BeautifulSoup):
 @return_empty_when_error
 def analyze_SouthCN_article(soup:BeautifulSoup):
     
-    titles = [soup.find(id_="article_title")] # TODO
+    titles = [soup.find(id="article_title").text] # TODO
     
     content_div = soup.find('div', class_="m-article")
     if content_div:
         paragraphs = content_div.find_all(
-                            'p', {'style': 'text-align: justify;'})
+            'p', {'style': 'text-align: justify;'})
         content = []
         for p in paragraphs:
             if p.text.strip():  

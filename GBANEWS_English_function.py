@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, time
 import csv
+import sys
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8')
 
 def Extract_GBAEnglish_date(from_date: datetime, to_date: datetime):
     with open('GBA_English.csv', mode='w', encoding='utf-8', newline='') as csv_file:
@@ -35,10 +38,33 @@ def Extract_GBAEnglish_date(from_date: datetime, to_date: datetime):
                     if content_div:
                         paragraphs = content_div.find_all(
                             'p', {'style': 'text-align: left;'})
-                        content = []
-                        for p in paragraphs:
-                            if p.text.strip():  # Only include non-empty paragraphs
-                                content.append(p.text.strip())
+                        if paragraphs:
+                            content = []
+                            for p in paragraphs:
+                                if p.text.strip():  # Only include non-empty paragraphs
+                                    content.append(p.text.strip())
+                            
+                            if len(content) == 0:
+                                paragraphs = content_div.find_all('p', {'style': 'font-weight: inherit; text-align: left;'})
+                                if paragraphs:
+                                    content = []
+                                    for p in paragraphs:
+                                        if p.text.strip():
+                                            content.append(p.text.strip())
+                                else:
+                                    content = ["Text content not found."]
+                                    print(content)
+                        else:
+                            paragraphs = content_div.find_all('p')
+                            content = []
+                            for p in paragraphs:
+                                if p.text.strip():
+                                    content.append(p.text.strip())
+                            if len(content) == 0:
+                                content = ["Text content not found."]
+                                print(content)
+                        
+                            
                     else:
                         content = ["Content not found."]
 
@@ -52,7 +78,7 @@ def Extract_GBAEnglish_all():
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
 
-        for i in range(1, 2):  # 20 pages
+        for i in range(1, 21):  # 20 pages
             if i == 1:
                 url = "https://www.cnbayarea.org.cn/english/News/index.html"
             else:
@@ -71,10 +97,33 @@ def Extract_GBAEnglish_all():
                 if content_div:
                     paragraphs = content_div.find_all(
                         'p', {'style': 'text-align: left;'})
-                    content = []
-                    for p in paragraphs:
-                        if p.text.strip():  # Only include non-empty paragraphs
-                            content.append(p.text.strip())
+                    if paragraphs:
+                        content = []
+                        for p in paragraphs:
+                            if p.text.strip():  # Only include non-empty paragraphs
+                                content.append(p.text.strip())
+                        
+                        if len(content) == 0:
+                            paragraphs = content_div.find_all('p', {'style': 'font-weight: inherit; text-align: left;'})
+                            if paragraphs:
+                                content = []
+                                for p in paragraphs:
+                                    if p.text.strip():
+                                        content.append(p.text.strip())
+                            else:
+                                content = ["Text content not found."]
+                                print(content)
+                    else:
+                        paragraphs = content_div.find_all('p')
+                        content = []
+                        for p in paragraphs:
+                            if p.text.strip():
+                                content.append(p.text.strip())
+                        if len(content) == 0:
+                            content = ["Text content not found."]
+                            print(content)
+                    
+                        
                 else:
                     content = ["Content not found."]
 

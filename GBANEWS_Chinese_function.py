@@ -31,12 +31,34 @@ def Extract_GBAChinese_date(from_date: datetime, to_date: datetime):
                     content_div = content_soup.find('div', class_="article_con")
                     content_title = content_soup.find('h1', class_="article_t").text
                     if content_div:
-                        paragraphs = content_div.find_all(
-                            'p', {'style': 'text-align: justify;'})
-                        content = []
-                        for p in paragraphs:
-                            if p.text.strip():  # Only include non-empty paragraphs
-                                content.append(p.text.strip())
+                        paragraphs = content_div.find_all('p', {'style': 'text-align: justify;'})
+                        if paragraphs:
+                            content = []
+                            for p in paragraphs:
+                                if p.text.strip():  # Only include non-empty paragraphs
+                                    content.append(p.text.strip())
+                            if len(content) == 0:
+                                paragraphs = content_div.find_all('p', {'style': 'text-align: center;'})
+                                if paragraphs:
+                                    content = []
+                                    for p in paragraphs:
+                                        if p.text.strip():  # Only include non-empty paragraphs
+                                            content.append(p.text.strip())
+                        else:
+                            paragraphs = content_div.find_all('p', {'style': 'text-align: left;'})
+                            if paragraphs:
+                                content = []
+                                for p in paragraphs:
+                                    if p.text.strip():  # Only include non-empty paragraphs
+                                        content.append(p.text.strip())
+                            else:
+                                paragraphs = content_div.find_all('p', {'style': 'text-align: center;'})
+                                if paragraphs:
+                                    content = []
+                                    for p in paragraphs:
+                                        if p.text.strip():  # Only include non-empty paragraphs
+                                            content.append(p.text.strip())
+                                
                     else:
                         content = ["Content not found."]
 
@@ -50,7 +72,7 @@ def Extract_GBAChinese_all():
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
 
-        for i in range(1, 2):  # 50 pages
+        for i in range(1, 51):  # 50 pages
             if i == 1:
                 url = "https://www.cnbayarea.org.cn/news/focus/index.html"
             else:
@@ -66,12 +88,34 @@ def Extract_GBAChinese_all():
                 content_div = content_soup.find('div', class_="article_con")
                 content_title = content_soup.find('h1', class_="article_t").text
                 if content_div:
-                    paragraphs = content_div.find_all(
-                        'p', {'style': 'text-align: justify;'})
-                    content = []
-                    for p in paragraphs:
-                        if p.text.strip():  # Only include non-empty paragraphs
-                            content.append(p.text.strip())
+                    paragraphs = content_div.find_all('p', {'style': 'text-align: justify;'})
+                    if paragraphs:
+                        content = []
+                        for p in paragraphs:
+                            if p.text.strip():  # Only include non-empty paragraphs
+                                content.append(p.text.strip())
+                        if len(content) == 0:
+                            paragraphs = content_div.find_all('p', {'style': 'text-align: center;'})
+                            if paragraphs:
+                                content = []
+                                for p in paragraphs:
+                                    if p.text.strip():  # Only include non-empty paragraphs
+                                        content.append(p.text.strip())
+                    else:
+                        paragraphs = content_div.find_all('p', {'style': 'text-align: left;'})
+                        if paragraphs:
+                            content = []
+                            for p in paragraphs:
+                                if p.text.strip():  # Only include non-empty paragraphs
+                                    content.append(p.text.strip())
+                        else:
+                            paragraphs = content_div.find_all('p', {'style': 'text-align: center;'})
+                            if paragraphs:
+                                content = []
+                                for p in paragraphs:
+                                    if p.text.strip():  # Only include non-empty paragraphs
+                                        content.append(p.text.strip())
+                            
                 else:
                     content = ["Content not found."]
 
@@ -87,5 +131,5 @@ to_date = datetime.combine(today, time.max) - timedelta(seconds=1)
 
 Extract_GBAChinese_date(from_date, to_date)"""
 
-#Extract_GBAChinese_all()
+Extract_GBAChinese_all()
 

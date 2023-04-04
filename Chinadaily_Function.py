@@ -35,11 +35,18 @@ def Extract_chinadaily_date(from_date, to_date):
                         content_response.content, 'html.parser')
                     content_div = content_soup.find('div', id='Content')
                     Content_title = content_soup.find('h1').getText()
+                    if Content_title is not None:
+                        Content_title = Content_title.getText()
                     if content_div:
                         paragraphs = content_div.find_all('p')
                         content = []
-                        for p in paragraphs:
-                            content.append(p.get_text())
+                        if paragraphs:
+                            for p in paragraphs:
+                                content.append(p.get_text())
+                        else:
+                            content = ["No Text Content"]
+                        if len(content) == 0:
+                            content = ["No Text Content"]
                     else:
                         content = ["Content not found."]
 
@@ -54,7 +61,7 @@ def Extract_chinadaily_all():
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
 
-        for i in range(1, 400):
+        for i in range(1, 5):
             url = f"https://www.chinadaily.com.cn/china/governmentandpolicy/page_{i}.html"
             response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -81,6 +88,8 @@ def Extract_chinadaily_all():
                             content.append(p.get_text())
                     else:
                         content = ["No Text Content"]
+                    if len(content) == 0:
+                         content = ["No Text Content"]
                 else:
                     content = ["Content not found."]
 

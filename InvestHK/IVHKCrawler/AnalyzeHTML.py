@@ -310,3 +310,25 @@ def analyze_jiemian_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_CNN_article(soup:BeautifulSoup):
+    
+    content_title = soup.find(class_="headline__text inline-placeholder")
+    if content_title is not None:
+        titles = [content_title.text.strip()] 
+    
+    content_div = soup.find(class_="article__content")
+    if content_div:
+        paragraphs = content_div.find_all('p')
+        content = []
+        if paragraphs:
+            for p in paragraphs:
+                content.append(p.text.strip())
+        else:
+            content = ["No Text Content"]
+    else:
+        content = ["No Text Content"]
+    contents = "\n".join(content)
+    
+    return titles, contents

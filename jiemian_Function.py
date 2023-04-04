@@ -106,6 +106,8 @@ def Extract_jiemian_date(from_date, to_date):
                                     content = []
                                     for p in paragraphs:
                                         content.append(p.get_text())
+                                    else:
+                                        content = ["No Text Content"]
                                 else:
                                     content = ["Content not found."]
                                 

@@ -38,6 +38,8 @@ def Extract_SouthCN_date(from_date: datetime, to_date: datetime):
                         for p in paragraphs:
                             if p.text.strip():  # Only include non-empty paragraphs
                                 content.append(p.text.strip())
+                        else:
+                            content = ["No Text Content"]
                     else:
                         content = ["Content not found."]
 
@@ -46,7 +48,7 @@ def Extract_SouthCN_date(from_date: datetime, to_date: datetime):
                                     })
                     
 def Extract_SouthCN_all():
-    with open('GBA_Chinese.csv', mode='w', encoding='utf-8', newline='') as csv_file:
+    with open('SouthCN.csv', mode='w', encoding='utf-8', newline='') as csv_file:
         fieldnames = ['Title', 'Link', 'Content']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
@@ -73,6 +75,8 @@ def Extract_SouthCN_all():
                     for p in paragraphs:
                         if p.text.strip():  # Only include non-empty paragraphs
                             content.append(p.text.strip())
+                    else:
+                        content = ["No Text Content"]
                 else:
                     content = ["Content not found."]
 

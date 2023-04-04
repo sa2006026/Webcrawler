@@ -737,3 +737,32 @@ def fetch_url_from_jiemian(driver, q, from_date: datetime, to_date: datetime):
   
             # break # TODO
     return res
+
+def fetch_url_from_CNN(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+
+    datetime_obj = datetime.today()
+    url = f"https://edition.cnn.com/business"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    articles = soup.find_all(class_="container__link container_lead-plus-headlines-with-images__link")
+    # Extract title, content and link
+    links = soup.find_all('a', class_='container__link')
+    unique_links = set()
+    unique_articles = set()
+
+    for link_1 in links:
+        article_1 = link_1.find(class_='container__headline')
+        if article_1 is not None:
+            article_1 = link_1.find('div', class_='container__headline').text.strip()
+            if article_1 not in unique_articles:
+                    unique_articles.add(article_1)
+                    title = article_1
+                    link_1 = link_1.get('href')
+                    if link_1.startswith('https://www.cnn.com/interactive'):
+                        link_1 = link_1.replace('https://www.cnn.com', '')
+                    link = f"https://www.cnn.com{link_1}"
+            res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
+            # break # TODO
+    return res

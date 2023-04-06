@@ -93,9 +93,9 @@ def Extract_YiCai_date(from_date, to_date):
 
                         break
 
-from_date = datetime.today() - timedelta(days=1)  #extract from date
+#from_date = datetime.today() - timedelta(days=10)  #extract from date
 
-#from_date = datetime.strptime('2020-01-01', '%Y-%m-%d')  #extract all
+from_date = datetime.strptime('2020-01-01', '%Y-%m-%d')  #extract all
 
 to_date = datetime.today()                                          #must open
 Extract_YiCai_date(from_date, to_date)                          #must open

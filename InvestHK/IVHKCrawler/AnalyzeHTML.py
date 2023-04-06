@@ -332,3 +332,22 @@ def analyze_CNN_article(soup:BeautifulSoup):
     contents = "\n".join(content)
     
     return titles, contents
+
+@return_empty_when_error
+def analyze_Fintechnews_article(soup:BeautifulSoup):
+    
+    content_div = soup.find(class_='article-content')
+    Content_title = soup.find(class_='article-header')
+    if Content_title is not None:
+        titles = Content_title.find('h1').text
+    if content_div:
+        paragraphs = content_div.find_all('p')
+        content = []
+        if paragraphs:
+            for p in paragraphs:
+                content.append(p.get_text())
+        else:
+            content = ["No Text Content"]
+    contents = "\n".join(content)
+    
+    return titles, contents

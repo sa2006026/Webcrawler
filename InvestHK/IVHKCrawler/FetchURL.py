@@ -766,3 +766,20 @@ def fetch_url_from_CNN(driver, q, from_date: datetime, to_date: datetime):
             res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
             # break # TODO
     return res
+
+def fetch_url_from_Fintechnews(driver, q, from_date: datetime, to_date: datetime):
+    res = []  # url, title, datetime
+    # TODO: date time
+    datetime_obj = datetime.today()
+    url = f"https://fintechnews.hk/"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    articles = soup.find_all(class_="item")
+    for article in articles:
+        title_1 = article.find(class_='entry-title')
+        if title_1 is not None:
+            title = title_1.text
+            link = article.find('a')['href']
+            res.append(dict(title=title, url=f"{link}", datetime=datetime_obj))
+            # break # TODO
+    return res
